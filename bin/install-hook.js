@@ -5,7 +5,6 @@ const { execSync } = require("child_process");
 
 function generateLogFile(logPath) {
   try {
-    // Get all commit hashes first
     const hashes = execSync("git log --pretty=format:%h")
       .toString()
       .trim()
@@ -52,7 +51,6 @@ try {
   fs.chmodSync(hookPath, 0o755);
   console.log("✅ pre-commit hook installed successfully!");
 
-  // Generate .commit-log.md with past commits
   const logPath = path.join(projectRoot, ".commit-log.md");
   generateLogFile(logPath);
 } catch (e) {
