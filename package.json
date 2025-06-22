@@ -1,0 +1,14 @@
+{
+  "name": "@3roland59/gawk",
+  "version": "1.0.0",
+  "description": "Logs Git commit messages to a markdown file.",
+  "main": "index.js",
+  "bin": {
+    "gawk-install": "bin/install-hook.js"
+  },
+  "scripts": {
+    "postinstall": "node ./bin/install-hook.js"
+  },
+  "author": "Roland Amartey",
+  "license": "MIT"
+}
