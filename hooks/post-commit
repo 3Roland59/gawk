@@ -1,22 +1,27 @@
 #!/bin/bash
 
-# Get commit details
-commit_hash=$(git log -1 --pretty=format:"%h")
-author=$(git log -1 --pretty=format:"%an")
-message=$(git log -1 --pretty=format:"%s")
-date_time=$(git log -1 --pretty=format:"%cd")
-files=$(git diff-tree --no-commit-id --name-only -r HEAD)
+# Use staged changes to generate the commit log (since commit doesn't exist yet)
+author=$(git config user.name)
+date_time=$(date "+%a %b %d %T %Y")
+message=$(git diff --cached --quiet || git diff --cached --shortstat)
+files=$(git diff --cached --name-only)
 
-# Format output as markdown
+# Generate commit hash placeholder
+commit_placeholder="Pending"
+
+# Write to .commit-log.md
 {
-  echo "### Commit: **$commit_hash**"
+  echo "### Commit: **$commit_placeholder**"
   echo "- **User:** $author"
   echo "- **Date:** $date_time"
   echo "- **Message:** $message"
-  echo "- **Files Changed:**"
+  echo "- **Files Staged:**"
   for file in $files; do
     echo "  - \`$file\`"
   done
   echo ""
 } >> .commit-log.md
+
+# Stage the updated log so it gets included
+git add .commit-log.md
 

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Get commit details
+commit_hash=$(git log -1 --pretty=format:"%h")
+author=$(git log -1 --pretty=format:"%an")
+message=$(git log -1 --pretty=format:"%s")
+date_time=$(git log -1 --pretty=format:"%cd")
+files=$(git diff-tree --no-commit-id --name-only -r HEAD)
+
+# Format output as markdown
+{
+  echo "### Commit: **$commit_hash**"
+  echo "- **User:** $author"
+  echo "- **Date:** $date_time"
+  echo "- **Message:** $message"
+  echo "- **Files Changed:**"
+  for file in $files; do
+    echo "  - \`$file\`"
+  done
+  echo ""
+} >> .commit-log.md
+
