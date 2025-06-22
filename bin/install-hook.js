@@ -5,29 +5,28 @@ const { execSync } = require("child_process");
 
 function generateLogFile(logPath) {
   try {
-    const fullLog = execSync(
-      `git log --pretty=format:"### Commit: **%h**%n- **User:** %an%n- **Date:** %cd%n- **Message:** %s%n- **Files Changed:**" --date=iso`
-    )
+    // Get all commit hashes first
+    const hashes = execSync("git log --pretty=format:%h")
       .toString()
-      .trim();
+      .trim()
+      .split("\n");
 
-    const commits = fullLog.split("### Commit: ").filter(Boolean);
     let markdown = "";
 
-    for (const commit of commits) {
-      const parts = commit.split("\n");
-      const hash = parts[0].trim();
-      const meta = parts.slice(1).join("\n");
+    for (const hash of hashes.reverse()) {
+      const meta = execSync(
+        `git show -s --format="### Commit: **%h**%n- **User:** %an%n- **Date:** %cd%n- **Message:** %s%n- **Files Changed:**" ${hash} --date=iso`
+      ).toString();
 
-      // Get changed files for this commit
-      const files = execSync(`git show --pretty="" --name-only ${hash}`).toString();
-      const fileList = files
+      const files = execSync(`git show --pretty="" --name-only ${hash}`)
+        .toString()
+        .trim()
         .split("\n")
         .filter(Boolean)
         .map((f) => `  - \`${f}\``)
         .join("\n");
 
-      markdown += `### Commit: **${hash}**\n${meta}\n${fileList}\n\n`;
+      markdown += `${meta}\n${files}\n\n`;
     }
 
     fs.writeFileSync(logPath, markdown);
@@ -36,6 +35,7 @@ function generateLogFile(logPath) {
     console.warn("⚠️ Could not generate commit history:", e.message);
   }
 }
+
 
 try {
   const gitDir = execSync("git rev-parse --git-dir", { stdio: ["pipe", "pipe", "ignore"] })
